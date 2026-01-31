@@ -184,7 +184,31 @@ function ChatInterface() {
         {chatState.error && (
           <div className="px-8 pt-4">
             <Card className="p-3 bg-red-50 border-red-200 max-w-4xl mx-auto">
-              <p className="text-sm text-red-600">{chatState.error}</p>
+              <div className="space-y-2">
+                <p className="text-sm text-red-600 font-medium">Error / خطأ</p>
+                <p className="text-sm text-red-600 whitespace-pre-line">{chatState.error}</p>
+                {chatState.error.includes('404') && (
+                  <div className="mt-3 pt-3 border-t border-red-200">
+                    <p className="text-xs text-red-500 mb-2">
+                      Quick fix / حل سريع:
+                    </p>
+                    <p className="text-xs text-red-600">
+                      1. Click the Settings icon (⚙️) in the header
+                      <br />
+                      2. Verify your API endpoint URL is correct
+                      <br />
+                      3. Make sure your backend server is running
+                      <br />
+                      <br />
+                      1. اضغط على أيقونة الإعدادات (⚙️) في الـ header
+                      <br />
+                      2. تأكد من صحة رابط الـ API endpoint
+                      <br />
+                      3. تأكد من أن الـ backend server يعمل
+                    </p>
+                  </div>
+                )}
+              </div>
             </Card>
           </div>
         )}

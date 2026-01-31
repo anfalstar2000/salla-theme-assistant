@@ -48,14 +48,18 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             <Label htmlFor="api-url">API Endpoint URL</Label>
             <Input
               id="api-url"
-              placeholder="/api/agent"
+              placeholder="/api/agent or https://your-backend.com/api/agent"
               value={apiUrl}
               onChange={(e) => setApiUrl(e.target.value)}
             />
             <p className="text-xs text-gray-500">
               Your API endpoint URL (default: /api/agent)
               <br />
+              Examples: <code className="text-xs">/api/agent</code> or <code className="text-xs">https://api.example.com/agent</code>
+              <br />
               رابط الـ API endpoint الخاص بك (افتراضي: /api/agent)
+              <br />
+              أمثلة: <code className="text-xs">/api/agent</code> أو <code className="text-xs">https://api.example.com/agent</code>
             </p>
           </div>
           <div className="space-y-2">

@@ -70,7 +70,25 @@ export async function sendMessageToAgent(message: string): Promise<AgentResponse
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unknown error');
-      throw new Error(`API request failed: ${response.status} ${errorText}`);
+      
+      // Provide user-friendly error messages
+      if (response.status === 404) {
+        throw new Error(
+          `API endpoint not found (404). Please check your API URL in Settings.\n` +
+          `Current endpoint: ${apiEndpoint}\n` +
+          `Make sure your backend server is running and the endpoint is correct.`
+        );
+      } else if (response.status === 401 || response.status === 403) {
+        throw new Error(
+          `Authentication failed (${response.status}). Please check your API Key in Settings.`
+        );
+      } else if (response.status >= 500) {
+        throw new Error(
+          `Server error (${response.status}). The backend server may be experiencing issues.`
+        );
+      } else {
+        throw new Error(`API request failed: ${response.status} ${errorText}`);
+      }
     }
 
     const data = await response.json();

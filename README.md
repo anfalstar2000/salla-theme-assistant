@@ -37,23 +37,73 @@ The agent service is configured to connect to your backend API. Set up your back
 
 ### 1. Set Up Backend API
 
-Create a backend API endpoint that runs your `runWorkflow` function:
+**Important:** You need to deploy the agent code to a backend server first. The frontend cannot work without a running backend.
+
+Create a backend API endpoint that runs your `runWorkflow` function. Here's an example using Express.js:
 
 ```typescript
 // Example Express.js endpoint
+import express from 'express';
+import cors from 'cors';
+import { runWorkflow } from './agent'; // Import your agent code
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
 app.post('/api/agent', async (req, res) => {
-  const { input_as_text } = req.body;
-  
-  const result = await runWorkflow({ input_as_text });
-  
-  res.json(result);
+  try {
+    const { input_as_text } = req.body;
+    
+    if (!input_as_text) {
+      return res.status(400).json({ error: 'input_as_text is required' });
+    }
+    
+    const result = await runWorkflow({ input_as_text });
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Agent error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 ```
 
-The API should return a JSON response with the following structure:
+**The API should return a JSON response with the following structure:**
 ```json
 {
   "output_text": "The agent's response text"
+}
+```
+
+**Your agent code should look like this:**
+```typescript
+import { webSearchTool, codeInterpreterTool, Agent, AgentInputItem, Runner, withTrace } from "@openai/agents";
+
+// ... your agent configuration ...
+
+export const runWorkflow = async (workflow: { input_as_text: string }) => {
+  return await withTrace("CODI AI CHAT", async () => {
+    const conversationHistory: AgentInputItem[] = [
+      { role: "user", content: [{ type: "input_text", text: workflow.input_as_text }] }
+    ];
+    const runner = new Runner({
+      traceMetadata: {
+        __trace_source__: "agent-builder",
+        workflow_id: "your-workflow-id"
+      }
+    });
+    const result = await runner.run(yourAgent, conversationHistory);
+    
+    return {
+      output_text: result.finalOutput ?? ""
+    };
+  });
 }
 ```
 
