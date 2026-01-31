@@ -126,7 +126,7 @@ export default async function handler(
       error: 'Internal server error',
       message: errorMessage,
       // Only include stack in development
-      ...(process.env.NODE_ENV === 'development' && { stack: errorStack })
+      ...(typeof process !== 'undefined' && process.env?.NODE_ENV === 'development' && { stack: errorStack })
     });
   }
 }
