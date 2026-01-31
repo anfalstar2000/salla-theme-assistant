@@ -86,34 +86,16 @@ const codeiSallaThemeAssistant = new Agent({
 - دائماً أفصل الشروحات، التعليمات، والتنبيهات بوضوح لتسهيل القراءة.
 - اسأل المستخدم بعد كل قسم إذا كان يحتاج توضيح إضافي أو يريد التعمق أكثر.
 
-# أمثلة
+# أمثلة على الأسلوب المطلوب
 
-مثال 1 (عربي – مستخدم مبتدئ):
+(هذه أمثلة توضيحية فقط - الـ Agent سيرد بناءً على المدخلات الفعلية من المستخدم)
 
-**المدخل:**
-مرحبا! أرسلت لك كود CSS للزر، كيف أغير اللون بشكل متوافق مع ثيم سلة؟
-
-**الرد النموذجي:**
-مرحبا! 👋 دعني أشوف كودك دقيقة...
-الشفرة اللي أرسلتها تستخدم متغير CSS الافتراضي للون الخلفية.
-أولاً، عشان نغيّر اللون ونضمن إنه يتناسب مع ثيم سلة، خلينا نستعمل متغير نظام سلة مثل: \`var(--button-bg-color)\`.
-هل تبي فقط تغير اللون، أو تبي تأثير hover كمان؟
-[هنا تدرج الكود المقترح مع تعليقات مبسطة]
-حلو! شوف إذا واضح كذا أو تحب أضيف خيارات إضافية؟  
-(في الشرح الواقعي: الكود وتعليقات أكثر، ومع كل خطوة سؤال "واضح؟" وإمكانية التطوير…)
-
-مثال 2 (إنجليزي – مستخدم خبير):
-
-**Input:**
-Here's my Twig loop, but the JavaScript cannot find my dynamic IDs. How can I improve?
-
-**Model Response:**
-Alright, let me look at your code for a sec…
-I see you're generating IDs using Twig's index—classic issue with DOM references after rendering!  
-Let's first refactor the JS to use class selectors for better handling:
-[Here goes the improved JS/Twig snippet with English comments]
-Want to get more advanced—maybe auto-init via MutationObserver for dynamic content?  
-Let me know if you want more expert tricks or best-practice insights.
+**أسلوب الرد المطلوب:**
+- ابدأ بتحية ودودة
+- لخص فهمك للطلب
+- اسأل أسئلة توضيحية
+- قدم حلول متدرجة مع شرح
+- أنهي بسؤال تعاوني
 
 # ملاحظات هامة
 
@@ -142,13 +124,24 @@ type WorkflowInput = { input_as_text: string };
 
 // Main code entrypoint
 export const runWorkflow = async (workflow: WorkflowInput) => {
-  return await withTrace("CODI AI CHAT", async () => {
-    const state = {};
+  // Validate input
+  if (!workflow || !workflow.input_as_text || typeof workflow.input_as_text !== 'string') {
+    throw new Error('Invalid input: input_as_text is required and must be a string');
+  }
 
+  return await withTrace("CODI AI CHAT", async () => {
+    // Initialize conversation history with user message
     const conversationHistory: AgentInputItem[] = [
-      { role: "user", content: [{ type: "input_text", text: workflow.input_as_text }] }
+      { 
+        role: "user", 
+        content: [{ 
+          type: "input_text", 
+          text: workflow.input_as_text.trim() 
+        }] 
+      }
     ];
 
+    // Initialize the runner with trace metadata
     const runner = new Runner({
       traceMetadata: {
         __trace_source__: "agent-builder",
@@ -156,23 +149,25 @@ export const runWorkflow = async (workflow: WorkflowInput) => {
       }
     });
 
-    const codeiSallaThemeAssistantResultTemp = await runner.run(
+    // Run the agent with the conversation history
+    const agentResult = await runner.run(
       codeiSallaThemeAssistant,
-      [
-        ...conversationHistory
-      ]
+      conversationHistory
     );
 
-    conversationHistory.push(...codeiSallaThemeAssistantResultTemp.newItems.map((item) => item.rawItem));
-
-    if (!codeiSallaThemeAssistantResultTemp.finalOutput) {
-      throw new Error("Agent result is undefined");
+    // Update conversation history with new items
+    if (agentResult.newItems && agentResult.newItems.length > 0) {
+      conversationHistory.push(...agentResult.newItems.map((item) => item.rawItem));
     }
 
-    const codeiSallaThemeAssistantResult = {
-      output_text: codeiSallaThemeAssistantResultTemp.finalOutput ?? ""
-    };
+    // Validate and return the result
+    if (!agentResult || !agentResult.finalOutput) {
+      throw new Error("Agent did not return a valid response. finalOutput is missing.");
+    }
 
-    return codeiSallaThemeAssistantResult;
+    // Return the response in the expected format
+    return {
+      output_text: agentResult.finalOutput
+    };
   });
 }
