@@ -7,7 +7,26 @@ export interface AgentResponse {
 }
 
 const API_TIMEOUT = 30000; // 30 seconds
-const API_ENDPOINT = import.meta.env.VITE_AGENT_API_URL || '/api/agent';
+
+/**
+ * Gets the API endpoint from environment variable or localStorage
+ */
+function getApiEndpoint(): string {
+  // Check localStorage first (user settings)
+  const savedUrl = localStorage.getItem('agent_api_url');
+  if (savedUrl) {
+    return savedUrl;
+  }
+  // Fall back to environment variable
+  return import.meta.env.VITE_AGENT_API_URL || '/api/agent';
+}
+
+/**
+ * Gets the API key from localStorage if available
+ */
+function getApiKey(): string | null {
+  return localStorage.getItem('agent_api_key');
+}
 
 /**
  * Sends a message to the Codei - Salla Theme Assistant agent
@@ -22,16 +41,27 @@ export async function sendMessageToAgent(message: string): Promise<AgentResponse
     throw new Error('Message cannot be empty');
   }
 
+  const apiEndpoint = getApiEndpoint();
+  const apiKey = getApiKey();
+
+  // Prepare headers
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+
+  // Add API key to headers if available
+  if (apiKey) {
+    headers['Authorization'] = `Bearer ${apiKey}`;
+  }
+
   // Create abort controller for timeout
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
 
   try {
-    const response = await fetch(API_ENDPOINT, {
+    const response = await fetch(apiEndpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ input_as_text: sanitizedMessage }),
       signal: controller.signal,
     });

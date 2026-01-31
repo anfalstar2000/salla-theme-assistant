@@ -59,7 +59,16 @@ The API should return a JSON response with the following structure:
 
 ### 2. Configure API Endpoint
 
-Set the `VITE_AGENT_API_URL` environment variable to point to your backend:
+You can configure the API endpoint in two ways:
+
+**Option A: Using Settings UI (Recommended)**
+1. Click the Settings icon (⚙️) in the top-right corner of the header
+2. Enter your API endpoint URL (e.g., `/api/agent` or `https://your-backend.com/api/agent`)
+3. Optionally add an API Key if your backend requires authentication
+4. Click "Save" - settings are stored in your browser's localStorage
+
+**Option B: Using Environment Variable**
+Set the `VITE_AGENT_API_URL` environment variable:
 
 ```bash
 # .env file
@@ -71,7 +80,7 @@ Or use an absolute URL:
 VITE_AGENT_API_URL=https://your-backend.com/api/agent
 ```
 
-If not set, it defaults to `/api/agent` (relative URL).
+**Priority:** Settings UI > Environment Variable > Default (`/api/agent`)
 
 ### 3. Backend Environment Variables
 
