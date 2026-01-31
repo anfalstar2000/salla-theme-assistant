@@ -5,7 +5,19 @@
  * Make sure to set your OPENAI_API_KEY in Vercel environment variables.
  */
 
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+// Vercel Serverless Function types
+type VercelRequest = {
+  method?: string;
+  body?: any;
+  query?: any;
+};
+
+type VercelResponse = {
+  status: (code: number) => VercelResponse;
+  json: (data: any) => void;
+  setHeader: (name: string, value: string) => void;
+  end: () => void;
+};
 
 export default async function handler(
   req: VercelRequest,
