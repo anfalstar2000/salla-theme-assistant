@@ -5,6 +5,13 @@
  * Make sure to set OPENAI_API_KEY in Vercel environment variables.
  */
 
+// Type declarations for Node.js environment
+declare const process: {
+  env?: {
+    [key: string]: string | undefined;
+  };
+} | undefined;
+
 // Vercel Serverless Function types
 type VercelRequest = {
   method?: string;
@@ -91,7 +98,20 @@ export default async function handler(
     }
 
     // Get OpenAI API key from environment
-    const apiKey = typeof process !== 'undefined' && process.env?.OPENAI_API_KEY;
+    // In Vercel, environment variables are injected at runtime
+    // Use a safe access pattern that works in serverless context
+    const getEnvVar = (name: string): string | undefined => {
+      // Try multiple ways to access environment variables
+      if (typeof process !== 'undefined' && process.env) {
+        return process.env[name];
+      }
+      if (typeof globalThis !== 'undefined' && (globalThis as any).process?.env) {
+        return (globalThis as any).process.env[name];
+      }
+      return undefined;
+    };
+    
+    const apiKey = getEnvVar('OPENAI_API_KEY');
     
     if (!apiKey) {
       return res.status(500).json({
@@ -101,10 +121,16 @@ export default async function handler(
     }
 
     // Import and use OpenAI SDK directly
-    let OpenAI;
+    let OpenAI: any;
     try {
+      // Dynamic import of openai package
+      // @ts-ignore - openai package types will be available at runtime
       const openaiModule = await import('openai');
-      OpenAI = openaiModule.default || openaiModule.OpenAI;
+      // Handle both default export and named export
+      OpenAI = openaiModule.default || openaiModule.OpenAI || (openaiModule as any).OpenAI;
+      if (!OpenAI) {
+        throw new Error('OpenAI class not found in openai module');
+      }
     } catch (importError) {
       return res.status(500).json({
         error: 'OpenAI SDK not available',
