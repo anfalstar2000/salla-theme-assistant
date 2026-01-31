@@ -124,9 +124,8 @@ export default async function handler(
 
     return res.status(500).json({ 
       error: 'Internal server error',
-      message: errorMessage,
-      // Only include stack in development
-      ...(typeof process !== 'undefined' && process.env?.NODE_ENV === 'development' && { stack: errorStack })
+      message: errorMessage
+      // Stack trace removed for security in production
     });
   }
 }
