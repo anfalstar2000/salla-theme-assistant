@@ -6,7 +6,7 @@ import { Copy, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import logoIcon from 'figma:asset/ac4adba80905e7f2545da21fa4566cbaedaa0d5c.png';
+import logoIcon from '@/assets/ac4adba80905e7f2545da21fa4566cbaedaa0d5c.png';
 
 interface ChatMessageProps {
   message: Message;

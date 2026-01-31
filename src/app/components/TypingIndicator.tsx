@@ -1,4 +1,4 @@
-import logoIcon from 'figma:asset/ac4adba80905e7f2545da21fa4566cbaedaa0d5c.png';
+import logoIcon from '@/assets/ac4adba80905e7f2545da21fa4566cbaedaa0d5c.png';
 
 export function TypingIndicator() {
   return (
