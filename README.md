@@ -31,9 +31,39 @@ pnpm dev
 pnpm build
 ```
 
+## Quick Start
+
+The project includes a Vercel Serverless Function setup. After deployment:
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Set environment variables in Vercel:**
+   - Go to your Vercel project → Settings → Environment Variables
+   - Add `OPENAI_API_KEY` with your OpenAI API key
+
+3. **Deploy to Vercel:**
+   - The API will automatically be available at `/api/agent`
+   - No additional configuration needed!
+
 ## Connecting to Your Agent Backend
 
-The agent service is configured to connect to your backend API. Set up your backend and configure the API endpoint:
+The agent service is configured to connect to your backend API. You have two options:
+
+### Option 1: Use Built-in Vercel Serverless Function (Recommended)
+
+The project includes a Vercel Serverless Function at `api/agent.ts` that uses the agent code in `agent.ts`. This works automatically when deployed to Vercel.
+
+**Setup:**
+1. Make sure `agent.ts` contains your agent code (already included)
+2. Set `OPENAI_API_KEY` in Vercel environment variables
+3. Deploy - the API will be available at `/api/agent`
+
+### Option 2: External Backend
+
+If you prefer to use a separate backend server, set up your backend and configure the API endpoint:
 
 ### 1. Set Up Backend API
 
